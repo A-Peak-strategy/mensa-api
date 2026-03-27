@@ -15,6 +15,6 @@ if (process.env.CLOUDINARY_URL) {
     });
 }
 
-console.log("Cloudinary configured for cloud:", cloudinary.config().cloud_name);
+console.log("Cloudinary configured.");
 
 export default cloudinary;
