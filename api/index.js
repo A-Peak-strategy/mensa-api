@@ -14,11 +14,36 @@ import galleryRoutes from "../routes/gallery.routes.js";
 import quoteRoutes from "../routes/quote.routes.js";
 import contactRoutes from "../routes/contact.routes.js";
 
-
-
 const app = express();
-app.use(cors());
+
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(origin => origin.trim())
+    .filter(Boolean);
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
+    credentials: true,
+}));
+
 app.use(json());
+
+app.get('/', (req, res) => {
+    res.status(200).json({
+        status: 'OK',
+        message: 'Mensa API is running',
+    });
+});
 
 // Health checks
 app.get('/health', async (req, res) => {
@@ -32,7 +57,7 @@ app.get('/health', async (req, res) => {
                 firebase: 'connected'
             },
             uptime: process.uptime(),
-            timestamp: new Date()
+            timestamp: new Date().toISOString()
         });
     } catch (error) {
         res.status(500).json({
@@ -42,13 +67,16 @@ app.get('/health', async (req, res) => {
                 firebase: 'disconnected'
             },
             error: error.message,
-            timestamp: new Date()
+            timestamp: new Date().toISOString()
         });
     }
 });
 
 app.get('/health/live', (req, res) => {
-    res.status(200).json({ status: 'alive' });
+    res.status(200).json({
+        status: 'alive',
+        timestamp: new Date().toISOString()
+    });
 });
 
 app.get('/health/ready', async (req, res) => {
@@ -57,13 +85,15 @@ app.get('/health/ready', async (req, res) => {
 
         res.status(200).json({
             status: 'ready',
-            firebase: 'connected'
+            firebase: 'connected',
+            timestamp: new Date().toISOString()
         });
     } catch (error) {
         res.status(500).json({
             status: 'not_ready',
             firebase: 'disconnected',
-            error: error.message
+            error: error.message,
+            timestamp: new Date().toISOString()
         });
     }
 });
@@ -79,6 +109,28 @@ app.use('/api/events', eventRoutes);
 app.use('/api/gallery', galleryRoutes);
 app.use('/api/quotes', quoteRoutes);
 app.use('/api/contacts', contactRoutes);
+
+// CORS error handler
+app.use((err, req, res, next) => {
+    if (err?.message?.includes('CORS blocked')) {
+        return res.status(403).json({
+            status: 'error',
+            message: err.message,
+        });
+    }
+
+    next(err);
+});
+
+// General error handler
+app.use((err, req, res, next) => {
+    console.error(err);
+
+    res.status(500).json({
+        status: 'error',
+        message: 'Internal server error',
+    });
+});
 
 // Test Firebase connection on startup
 async function testFirebaseConnection() {
