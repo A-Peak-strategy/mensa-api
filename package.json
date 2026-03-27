@@ -1,0 +1,34 @@
+{
+  "name": "mensa-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "api/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predev": "node -e \"const v=process.versions.node; const m=parseInt(v.split('.')[0],10); if(m<18||m>=21){console.error('\\n❌ Node 18 or 20 required (you have ' + v + '). Firebase deps break on Node 21+.\\n   Run: nvm use 20   then  npm run dev\\n'); process.exit(1);}\"",
+    "dev": "node api/index.js",
+    "dev:watch": "node --watch api/index.js",
+    "start": "node api/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=18 <21"
+  },
+  "dependencies": {
+    "cloudinary": "^2.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "firebase-admin": "^13.2.0",
+    "mensa-api": "file:",
+    "multer": "^1.4.5-lts.2",
+    "serverless-http": "^3.2.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
