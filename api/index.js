@@ -1,5 +1,6 @@
+import 'dotenv/config';
+
 import express, { json } from 'express';
-import { config } from 'dotenv';
 import cors from 'cors';
 import { db } from '../config/firebase.js';
 import authRoutes from '../routes/auth.routes.js';
@@ -13,7 +14,7 @@ import galleryRoutes from "../routes/gallery.routes.js";
 import quoteRoutes from "../routes/quote.routes.js";
 import contactRoutes from "../routes/contact.routes.js";
 
-config();
+
 
 const app = express();
 app.use(cors());
